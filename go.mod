@@ -1,4 +1,4 @@
-module github.com/ti-mo/conntrack
+module github.com/cheeseprocedure/conntrack
 
 go 1.12
 
