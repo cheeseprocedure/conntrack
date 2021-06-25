@@ -14,12 +14,6 @@ type Conn struct {
 	conn *netfilter.Conn
 }
 
-// DumpOptions is passed as an option to `Dump`-related methods to modify their behaviour.
-type DumpOptions struct {
-	// ZeroCounters resets all flows' counters to zero after the dump operation.
-	ZeroCounters bool
-}
-
 // Dial opens a new Netfilter Netlink connection and returns it
 // wrapped in a Conn structure that implements the Conntrack API.
 func Dial(config *netlink.Config) (*Conn, error) {
@@ -104,7 +98,13 @@ func (c *Conn) eventWorker(workerID uint8, evChan chan<- Event, errChan chan<- e
 
 	var err error
 	var recv []netlink.Message
-	var ev Event
+
+	// Initializing this outside the "for" loop leads to a potential race
+	// condition for this eventWorker instance, as the same Event struct ends
+	// up modified in-place and passed to the channel with every decoded event.
+	// If downstream code is consuming a pointer to this struct, very confusing
+	// behaviour may result.
+	// var ev Event
 
 	for {
 		// Receive data from the Netlink socket
@@ -121,7 +121,7 @@ func (c *Conn) eventWorker(workerID uint8, evChan chan<- Event, errChan chan<- e
 		}
 
 		// Decode event and send on channel
-		ev = *new(Event)
+		ev := *new(Event)
 		err := ev.unmarshal(recv[0])
 		if err != nil {
 			errChan <- err
@@ -134,16 +134,12 @@ func (c *Conn) eventWorker(workerID uint8, evChan chan<- Event, errChan chan<- e
 
 // Dump gets all Conntrack connections from the kernel in the form of a list
 // of Flow objects.
-func (c *Conn) Dump(opts *DumpOptions) ([]Flow, error) {
-	msgType := ctGet
-	if opts != nil && opts.ZeroCounters {
-		msgType = ctGetCtrZero
-	}
+func (c *Conn) Dump() ([]Flow, error) {
 
 	req, err := netfilter.MarshalNetlink(
 		netfilter.Header{
 			SubsystemID: netfilter.NFSubsysCTNetlink,
-			MessageType: netfilter.MessageType(msgType),
+			MessageType: netfilter.MessageType(ctGet),
 			Family:      netfilter.ProtoUnspec, // ProtoUnspec dumps both IPv4 and IPv6
 			Flags:       netlink.Request | netlink.Dump,
 		},
@@ -163,16 +159,12 @@ func (c *Conn) Dump(opts *DumpOptions) ([]Flow, error) {
 
 // DumpFilter gets all Conntrack connections from the kernel in the form of a list
 // of Flow objects, but only returns Flows matching the connmark specified in the Filter parameter.
-func (c *Conn) DumpFilter(f Filter, opts *DumpOptions) ([]Flow, error) {
-	msgType := ctGet
-	if opts != nil && opts.ZeroCounters {
-		msgType = ctGetCtrZero
-	}
+func (c *Conn) DumpFilter(f Filter) ([]Flow, error) {
 
 	req, err := netfilter.MarshalNetlink(
 		netfilter.Header{
 			SubsystemID: netfilter.NFSubsysCTNetlink,
-			MessageType: netfilter.MessageType(msgType),
+			MessageType: netfilter.MessageType(ctGet),
 			Family:      netfilter.ProtoUnspec, // ProtoUnspec dumps both IPv4 and IPv6
 			Flags:       netlink.Request | netlink.Dump,
 		},
@@ -193,6 +185,7 @@ func (c *Conn) DumpFilter(f Filter, opts *DumpOptions) ([]Flow, error) {
 // DumpExpect gets all expected Conntrack expectations from the kernel in the form
 // of a list of Expect objects.
 func (c *Conn) DumpExpect() ([]Expect, error) {
+
 	req, err := netfilter.MarshalNetlink(
 		netfilter.Header{
 			SubsystemID: netfilter.NFSubsysCTNetlinkExp,

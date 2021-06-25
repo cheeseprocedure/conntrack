@@ -60,10 +60,10 @@ func (hlp Helper) marshal() netfilter.Attribute {
 
 	nfa := netfilter.Attribute{Type: uint16(ctaHelp), Nested: true, Children: make([]netfilter.Attribute, 1, 2)}
 
-	nfa.Children[0] = netfilter.Attribute{Type: uint16(ctaHelpName), Data: []byte(hlp.Name)}
+	nfa.Children[0] = netfilter.Attribute{NetByteOrder: true, Type: uint16(ctaHelpName), Data: []byte(hlp.Name)}
 
 	if len(hlp.Info) > 0 {
-		nfa.Children = append(nfa.Children, netfilter.Attribute{Type: uint16(ctaHelpInfo), Data: hlp.Info})
+		nfa.Children = append(nfa.Children, netfilter.Attribute{NetByteOrder: true, Type: uint16(ctaHelpInfo), Data: hlp.Info})
 	}
 
 	return nfa
@@ -446,9 +446,9 @@ func (seq SequenceAdjust) marshal() netfilter.Attribute {
 
 	nfa := netfilter.Attribute{Type: uint16(at), Nested: true, Children: make([]netfilter.Attribute, 3)}
 
-	nfa.Children[0] = netfilter.Attribute{Type: uint16(ctaSeqAdjCorrectionPos), Data: netfilter.Uint32Bytes(seq.Position)}
-	nfa.Children[1] = netfilter.Attribute{Type: uint16(ctaSeqAdjOffsetBefore), Data: netfilter.Uint32Bytes(seq.OffsetBefore)}
-	nfa.Children[2] = netfilter.Attribute{Type: uint16(ctaSeqAdjOffsetAfter), Data: netfilter.Uint32Bytes(seq.OffsetAfter)}
+	nfa.Children[0] = netfilter.Attribute{NetByteOrder: true, Type: uint16(ctaSeqAdjCorrectionPos), Data: netfilter.Uint32Bytes(seq.Position)}
+	nfa.Children[1] = netfilter.Attribute{NetByteOrder: true, Type: uint16(ctaSeqAdjOffsetBefore), Data: netfilter.Uint32Bytes(seq.OffsetBefore)}
+	nfa.Children[2] = netfilter.Attribute{NetByteOrder: true, Type: uint16(ctaSeqAdjOffsetAfter), Data: netfilter.Uint32Bytes(seq.OffsetAfter)}
 
 	return nfa
 }
@@ -494,9 +494,9 @@ func (sp SynProxy) marshal() netfilter.Attribute {
 
 	nfa := netfilter.Attribute{Type: uint16(ctaSynProxy), Nested: true, Children: make([]netfilter.Attribute, 3)}
 
-	nfa.Children[0] = netfilter.Attribute{Type: uint16(ctaSynProxyISN), Data: netfilter.Uint32Bytes(sp.ISN)}
-	nfa.Children[1] = netfilter.Attribute{Type: uint16(ctaSynProxyITS), Data: netfilter.Uint32Bytes(sp.ITS)}
-	nfa.Children[2] = netfilter.Attribute{Type: uint16(ctaSynProxyTSOff), Data: netfilter.Uint32Bytes(sp.TSOff)}
+	nfa.Children[0] = netfilter.Attribute{NetByteOrder: true, Type: uint16(ctaSynProxyISN), Data: netfilter.Uint32Bytes(sp.ISN)}
+	nfa.Children[1] = netfilter.Attribute{NetByteOrder: true, Type: uint16(ctaSynProxyITS), Data: netfilter.Uint32Bytes(sp.ITS)}
+	nfa.Children[2] = netfilter.Attribute{NetByteOrder: true, Type: uint16(ctaSynProxyTSOff), Data: netfilter.Uint32Bytes(sp.TSOff)}
 
 	return nfa
 }

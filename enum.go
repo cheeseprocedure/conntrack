@@ -252,6 +252,29 @@ const (
 	ctaExpectNATTuple                       // CTA_EXPECT_NAT_TUPLE
 )
 
+// natType describes the type of NAT attribute in this container.
+type natType uint8
+
+// enum ctattr_nat
+const (
+	ctaNatUnspec  natType = iota // CTA_NAT_UNSPEC
+	ctaNatV4MinIP                // CTA_NAT_V4_MINIP
+	ctaNatV4MaxIP                // CTA_NAT_V4_MAXIP,
+	ctaNatProto                  // CTA_NAT_PROTO,
+	ctaNatV6MinIP                // CTA_NAT_V6_MINIP,
+	ctaNatV6MaxIP                // CTA_NAT_V6_MAXIP,
+)
+
+// protoNatType describes the type of NAT protocol attribute in this container.
+type protoNatType uint8
+
+// enum ctattr_protonat
+const (
+	ctaProtoNatUnspec  protoNatType = iota // CTA_PROTONAT_UNSPEC,
+	ctaProtoNatPortMin                     // CTA_PROTONAT_PORT_MIN
+	ctaProtoNatPortMax                     // CTA_PROTONAT_PORT_MAX
+)
+
 // cpuStatsType describes the type of CPU-specific conntrack statistics attribute in this container.
 type cpuStatsType uint8
 

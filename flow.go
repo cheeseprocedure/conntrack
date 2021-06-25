@@ -18,6 +18,10 @@ type Flow struct {
 	ProtoInfo ProtoInfo
 	Helper    Helper
 
+	// Adding NAT attributes
+	NatSrc NatMetadata
+	NatDst NatMetadata
+
 	Zone uint16
 
 	CountersOrig, CountersReply Counter
@@ -44,6 +48,7 @@ type Flow struct {
 // srcPort and dstPort are the source and destination ports.
 // timeout is the non-zero time-to-live of a connection in seconds.
 func NewFlow(proto uint8, status StatusFlag, srcAddr, destAddr net.IP, srcPort, destPort uint16, timeout, mark uint32) Flow {
+	// func NewFlow(proto uint8, status StatusFlag, srcAddr, destAddr net.IP, srcPort, destPort uint16, natSrc, natDst NatMetadata, timeout, mark uint32) Flow {
 
 	var f Flow
 
@@ -77,6 +82,8 @@ func (f *Flow) unmarshal(ad *netlink.AttributeDecoder) error {
 
 		at = attributeType(ad.Type())
 
+		// log.Printf("[*Flow.unmarshal] DEBUG - attribute type: %d", at)
+
 		switch at {
 		// CTA_TIMEOUT is the time until the Conntrack entry is automatically destroyed.
 		case ctaTimeout:
@@ -90,6 +97,21 @@ func (f *Flow) unmarshal(ad *netlink.AttributeDecoder) error {
 		// CTA_MARK is the connection's connmark
 		case ctaMark:
 			f.Mark = ad.Uint32()
+
+		// CTA_NAT_SRC ...
+		case ctaNatSrc:
+			// log.Println("[*Flow.unmarshal] DEBUG - found ctaNatSrc attribute")
+			if !nestedFlag(ad.TypeFlags()) {
+				return errors.Wrap(errNotNested, opUnNat)
+			}
+			ad.Nested(f.NatSrc.unmarshal)
+			// CTA_NAT_DST ...
+		case ctaNatDst:
+			// log.Println("[*Flow.unmarshal] DEBUG - found ctaNatDst attribute")
+			if !nestedFlag(ad.TypeFlags()) {
+				return errors.Wrap(errNotNested, opUnNat)
+			}
+
 		// CTA_ZONE describes the Conntrack zone the flow is placed in. This can be combined with a CTA_TUPLE_ZONE
 		// to specify which zone an event originates from.
 		case ctaZone:
@@ -186,6 +208,9 @@ func (f *Flow) unmarshal(ad *netlink.AttributeDecoder) error {
 		}
 	}
 
+	// Populate NAT attributes in Flow (as the kernel does not)
+	enrichFlowNat(f)
+
 	return ad.Err()
 }
 
@@ -209,7 +234,11 @@ func (f Flow) marshal() ([]netfilter.Attribute, error) {
 	}
 
 	if f.TupleReply.filled() {
-		tr, err := f.TupleReply.marshal(uint16(ctaTupleReply))
+		// Mimickign behaviour of conntrackd here to enable replication of NAT
+		// state
+		modifiedTupleReply := f.TupleReply
+		modifiedTupleReply.IP.DestinationAddress = f.TupleOrig.IP.SourceAddress
+		tr, err := modifiedTupleReply.marshal(uint16(ctaTupleReply))
 		if err != nil {
 			return nil, err
 		}
@@ -231,6 +260,22 @@ func (f Flow) marshal() ([]netfilter.Attribute, error) {
 		a := netfilter.Attribute{Type: uint16(ctaMark)}
 		a.PutUint32(f.Mark)
 		attrs = append(attrs, a)
+	}
+
+	if f.NatSrc.filled() {
+		nat, err := f.NatSrc.marshal(uint16(ctaNatSrc))
+		if err != nil {
+			return nil, err
+		}
+		attrs = append(attrs, nat)
+	}
+
+	if f.NatDst.filled() {
+		nat, err := f.NatDst.marshal(uint16(ctaNatDst))
+		if err != nil {
+			return nil, err
+		}
+		attrs = append(attrs, nat)
 	}
 
 	if f.Zone != 0 {
@@ -267,6 +312,14 @@ func (f Flow) marshal() ([]netfilter.Attribute, error) {
 		attrs = append(attrs, f.SynProxy.marshal())
 	}
 
+	// Non-nested netlink conntrack attributes are supposed to be in network
+	// (big-endian) order, not native
+	for _, a := range attrs {
+		if a.Nested {
+			continue
+		}
+		a.NetByteOrder = true
+	}
 	return attrs, nil
 }
 
