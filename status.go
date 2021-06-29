@@ -141,4 +141,15 @@ const (
 	StatusUntracked    StatusFlag = 1 << 12 // IPS_UNTRACKED
 	StatusHelper       StatusFlag = 1 << 13 // IPS_HELPER
 	StatusOffload      StatusFlag = 1 << 14 // IPS_OFFLOAD
+	StatusHWOffload    StatusFlag = 1 << 15 // IPS_HW_OFFLOAD
+
+	// StatusSetOnly includes bits that can be set, but not unset
+	StatusUnchangeable = StatusNATDoneMask | StatusNATMask |
+		StatusExpected | StatusConfirmed |
+		StatusDying | StatusSeqAdjust |
+		StatusTemplate | StatusUntracked |
+		StatusOffload | StatusOffload
+
+	// StatusSetOnly includes bits that can be set, but not unset
+	StatusSetOnly = StatusSeenReply | StatusAssured
 )
