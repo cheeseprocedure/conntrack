@@ -63,13 +63,13 @@ func (n NatMetadata) marshal(at uint16) (netfilter.Attribute, error) {
 	if n.Proto.filled() {
 		natProto, err := n.Proto.marshal()
 		if err != nil {
-			log.Printf("[NatMetadata/marshal] DEBUG - nfa: %v - ERROR marshaling n.Proto: %q", nfa, err)
+			// log.Printf("[NatMetadata/marshal] DEBUG - nfa: %v - ERROR marshaling n.Proto: %q", nfa, err)
 			return netfilter.Attribute{}, err
 		}
 		nfa.Children = append(nfa.Children, natProto)
 	}
-	log.Printf("[NatMetadata/marshal] DEBUG - n.Proto.filled() reports: %t", n.Proto.filled())
-	log.Printf("[NatMetadata/marshal] DEBUG - nfa: %+v", nfa)
+	// log.Printf("[NatMetadata/marshal] DEBUG - n.Proto.filled() reports: %t", n.Proto.filled())
+	// log.Printf("[NatMetadata/marshal] DEBUG - nfa: %+v", nfa)
 	return nfa, nil
 }
 
@@ -116,7 +116,7 @@ func (n *NatMetadata) unmarshal(ad *netlink.AttributeDecoder) error {
 			return errors.Wrap(fmt.Errorf(errAttributeChild, ad.Type()), opUnNat)
 		}
 	}
-	// log.Printf("[NatMetadata/unmarshal] DEBUG - n: %+v", n)
+	log.Printf("[NatMetadata/unmarshal] DEBUG - n: %+v", n)
 	return ad.Err()
 }
 
@@ -144,7 +144,7 @@ func (np NatMetadataProto) marshal() (netfilter.Attribute, error) {
 	if np.PortMax != 0 {
 		nfa.Children = append(nfa.Children, netfilter.Attribute{NetByteOrder: true, Type: uint16(ctaProtoNatPortMax), Data: netfilter.Uint16Bytes(np.PortMax)})
 	}
-	// log.Printf("[NatMetadataProto/marshal] DEBUG - n: %+v", np)
+	log.Printf("[NatMetadataProto/marshal] DEBUG - n: %+v", np)
 	return nfa, nil
 }
 
@@ -165,11 +165,11 @@ func (np *NatMetadataProto) unmarshal(ad *netlink.AttributeDecoder) error {
 			np.PortMax = ad.Uint16()
 			// np.PortMax = 54321
 		default:
-			// log.Printf("[NatMetadataProto/unmarshal] DEBUG - np: %v - ERROR - hit default case!", np)
+			log.Printf("[NatMetadataProto/unmarshal] DEBUG - np: %v - ERROR - hit default case!", np)
 			return errors.Wrap(fmt.Errorf(errAttributeChild, ad.Type()), opUnNatProto)
 		}
 	}
-	log.Printf("[NatMetadataProto/unmarshal] DEBUG - n: %+v", np)
+	// log.Printf("[NatMetadataProto/unmarshal] DEBUG - n: %+v", np)
 	return ad.Err()
 }
 
