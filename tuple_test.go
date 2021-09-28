@@ -137,7 +137,7 @@ func TestIPTupleMarshalTwoWay(t *testing.T) {
 
 			var ipt IPTuple
 
-			err := ipt.unmarshal(mustDecodeAttributes(tt.nfa.Children))
+			err := ipt.Unmarshal(mustDecodeAttributes(tt.nfa.Children))
 
 			if tt.err != nil {
 				require.Error(t, err)
@@ -281,7 +281,7 @@ func TestProtoTupleMarshalTwoWay(t *testing.T) {
 
 			var pt ProtoTuple
 
-			err := pt.unmarshal(mustDecodeAttributes(tt.nfa.Children))
+			err := pt.Unmarshal(mustDecodeAttributes(tt.nfa.Children))
 
 			if tt.err != nil {
 				require.Error(t, err)
@@ -415,7 +415,7 @@ func TestTupleMarshalTwoWay(t *testing.T) {
 
 			var tpl Tuple
 
-			err := tpl.unmarshal(mustDecodeAttributes(tt.nfa.Children))
+			err := tpl.Unmarshal(mustDecodeAttributes(tt.nfa.Children))
 
 			if tt.err != nil {
 				require.Error(t, err)

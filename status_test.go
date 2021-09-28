@@ -19,13 +19,13 @@ func TestStatusError(t *testing.T) {
 
 	var s Status
 
-	assert.EqualError(t, s.unmarshal(adEmpty), errors.Wrap(errNeedSingleChild, opUnStatus).Error())
-	assert.EqualError(t, s.unmarshal(mustDecodeAttribute(nfaUnspecU16)), errors.Wrap(errIncorrectSize, opUnStatus).Error())
+	assert.EqualError(t, s.Unmarshal(adEmpty), errors.Wrap(errNeedSingleChild, opUnStatus).Error())
+	assert.EqualError(t, s.Unmarshal(mustDecodeAttribute(nfaUnspecU16)), errors.Wrap(errIncorrectSize, opUnStatus).Error())
 
 	// Exhaust the AttributeDecoder before passing to unmarshal.
 	ad := mustDecodeAttribute(nfaUnspecU16)
 	ad.Next()
-	assert.NoError(t, s.unmarshal(ad))
+	assert.NoError(t, s.Unmarshal(ad))
 }
 
 func TestStatusMarshalTwoWay(t *testing.T) {
@@ -70,7 +70,7 @@ func TestStatusMarshalTwoWay(t *testing.T) {
 
 			var s Status
 
-			err := s.unmarshal(mustDecodeAttribute(nfa))
+			err := s.Unmarshal(mustDecodeAttribute(nfa))
 			if err != nil || tt.err != nil {
 				require.Error(t, err)
 				require.EqualError(t, tt.err, err.Error())
@@ -172,7 +172,7 @@ func BenchmarkStatusUnmarshalAttribute(b *testing.B) {
 	for n := 0; n < b.N; n++ {
 		// Make a fresh copy of the AttributeDecoder.
 		ad = ads[n%adl]
-		if err := ss.unmarshal(&ad); err != nil {
+		if err := ss.Unmarshal(&ad); err != nil {
 			b.Fatal(err)
 		}
 	}

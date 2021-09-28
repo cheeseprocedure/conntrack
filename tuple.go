@@ -42,7 +42,7 @@ func (t Tuple) String() string {
 }
 
 // unmarshal unmarshals a netfilter.Attribute into a Tuple.
-func (t *Tuple) unmarshal(ad *netlink.AttributeDecoder) error {
+func (t *Tuple) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	if ad.Len() < 2 {
 		return errors.Wrap(errNeedChildren, opUnTup)
@@ -52,11 +52,11 @@ func (t *Tuple) unmarshal(ad *netlink.AttributeDecoder) error {
 		switch tupleType(ad.Type()) {
 		case ctaTupleIP:
 			var ti IPTuple
-			ad.Nested(ti.unmarshal)
+			ad.Nested(ti.Unmarshal)
 			t.IP = ti
 		case ctaTupleProto:
 			var tp ProtoTuple
-			ad.Nested(tp.unmarshal)
+			ad.Nested(tp.Unmarshal)
 			t.Proto = tp
 		case ctaTupleZone:
 			t.Zone = ad.Uint16()
@@ -104,7 +104,7 @@ func (ipt IPTuple) filled() bool {
 // IPv4 addresses will be represented by a 4-byte net.IP, IPv6 addresses by 16-byte.
 // The net.IP object is created with the raw bytes, NOT with net.ParseIP().
 // Use IP.Equal() to compare addresses in implementations and tests.
-func (ipt *IPTuple) unmarshal(ad *netlink.AttributeDecoder) error {
+func (ipt *IPTuple) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	if ad.Len() != 2 {
 		return errors.Wrap(errNeedChildren, opUnIPTup)
@@ -192,7 +192,7 @@ func (pt ProtoTuple) filled() bool {
 }
 
 // unmarshal unmarshals a netfilter.Attribute into a ProtoTuple.
-func (pt *ProtoTuple) unmarshal(ad *netlink.AttributeDecoder) error {
+func (pt *ProtoTuple) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	if ad.Len() == 0 {
 		return errors.Wrap(errNeedSingleChild, opUnPTup)

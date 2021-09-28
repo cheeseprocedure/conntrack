@@ -122,7 +122,7 @@ func (c *Conn) eventWorker(workerID uint8, evChan chan<- Event, errChan chan<- e
 
 		// Decode event and send on channel
 		ev := *new(Event)
-		err := ev.unmarshal(recv[0])
+		err := ev.Unmarshal(recv[0])
 		if err != nil {
 			errChan <- err
 			return
@@ -154,7 +154,7 @@ func (c *Conn) Dump() ([]Flow, error) {
 		return nil, err
 	}
 
-	return unmarshalFlows(nlm)
+	return UnmarshalFlows(nlm)
 }
 
 // DumpFilter gets all Conntrack connections from the kernel in the form of a list
@@ -179,7 +179,7 @@ func (c *Conn) DumpFilter(f Filter) ([]Flow, error) {
 		return nil, err
 	}
 
-	return unmarshalFlows(nlm)
+	return UnmarshalFlows(nlm)
 }
 
 // DumpExpect gets all expected Conntrack expectations from the kernel in the form

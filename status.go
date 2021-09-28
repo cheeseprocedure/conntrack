@@ -16,7 +16,7 @@ type Status struct {
 }
 
 // unmarshal unmarshals a netfilter.Attribute into a Status structure.
-func (s *Status) unmarshal(ad *netlink.AttributeDecoder) error {
+func (s *Status) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	if ad.Len() != 1 {
 		return errors.Wrap(errNeedSingleChild, opUnStatus)

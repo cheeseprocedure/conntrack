@@ -68,7 +68,7 @@ func TestStatsUnmarshal(t *testing.T) {
 	}
 
 	var s Stats
-	s.unmarshal(nfa)
+	s.Unmarshal(nfa)
 
 	if diff := cmp.Diff(want, s); diff != "" {
 		t.Fatalf("unexpected unmarshal (-want +got):\n%s", diff)
@@ -105,7 +105,7 @@ func TestStatsExpectUnmarshal(t *testing.T) {
 	}
 
 	var se StatsExpect
-	se.unmarshal(nfa)
+	se.Unmarshal(nfa)
 
 	if diff := cmp.Diff(want, se); diff != "" {
 		t.Fatalf("unexpected unmarshal (-want +got):\n%s", diff)
@@ -137,7 +137,7 @@ func TestStatsGlobalUnmarshal(t *testing.T) {
 	}
 
 	var sg StatsGlobal
-	sg.unmarshal(nfa)
+	sg.Unmarshal(nfa)
 
 	if diff := cmp.Diff(want, sg); diff != "" {
 		t.Fatalf("unexpected unmarshal (-want +got):\n%s", diff)

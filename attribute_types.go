@@ -39,7 +39,7 @@ func (hlp Helper) filled() bool {
 }
 
 // unmarshal unmarshals a netfilter.Attribute into a Helper.
-func (hlp *Helper) unmarshal(ad *netlink.AttributeDecoder) error {
+func (hlp *Helper) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	for ad.Next() {
 		switch helperType(ad.Type()) {
@@ -84,7 +84,7 @@ func (pi ProtoInfo) filled() bool {
 
 // unmarshal unmarshals a netfilter.Attribute into a ProtoInfo structure.
 // one of three ProtoInfo types; TCP, DCCP or SCTP.
-func (pi *ProtoInfo) unmarshal(ad *netlink.AttributeDecoder) error {
+func (pi *ProtoInfo) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	// Make sure we don't unmarshal into the same ProtoInfo twice.
 	if pi.filled() {
@@ -103,15 +103,15 @@ func (pi *ProtoInfo) unmarshal(ad *netlink.AttributeDecoder) error {
 	switch protoInfoType(ad.Type()) {
 	case ctaProtoInfoTCP:
 		var tpi ProtoInfoTCP
-		ad.Nested(tpi.unmarshal)
+		ad.Nested(tpi.Unmarshal)
 		pi.TCP = &tpi
 	case ctaProtoInfoDCCP:
 		var dpi ProtoInfoDCCP
-		ad.Nested(dpi.unmarshal)
+		ad.Nested(dpi.Unmarshal)
 		pi.DCCP = &dpi
 	case ctaProtoInfoSCTP:
 		var spi ProtoInfoSCTP
-		ad.Nested(spi.unmarshal)
+		ad.Nested(spi.Unmarshal)
 		pi.SCTP = &spi
 	default:
 		return fmt.Errorf(errAttributeChild, ad.Type())
@@ -147,7 +147,7 @@ type ProtoInfoTCP struct {
 }
 
 // unmarshal unmarshals a netfilter.Attribute into a ProtoInfoTCP.
-func (tpi *ProtoInfoTCP) unmarshal(ad *netlink.AttributeDecoder) error {
+func (tpi *ProtoInfoTCP) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	// A ProtoInfoTCP has at least 3 members, TCP_STATE and TCP_FLAGS_ORIG/REPLY.
 	if ad.Len() < 3 {
@@ -200,7 +200,7 @@ type ProtoInfoDCCP struct {
 }
 
 // unmarshal unmarshals a netfilter.Attribute into a ProtoInfoTCP.
-func (dpi *ProtoInfoDCCP) unmarshal(ad *netlink.AttributeDecoder) error {
+func (dpi *ProtoInfoDCCP) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	if ad.Len() == 0 {
 		return errors.Wrap(errNeedChildren, opUnProtoInfoDCCP)
@@ -241,7 +241,7 @@ type ProtoInfoSCTP struct {
 }
 
 // unmarshal unmarshals a netfilter.Attribute into a ProtoInfoSCTP.
-func (spi *ProtoInfoSCTP) unmarshal(ad *netlink.AttributeDecoder) error {
+func (spi *ProtoInfoSCTP) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	if ad.Len() == 0 {
 		return errors.Wrap(errNeedChildren, opUnProtoInfoSCTP)
@@ -303,7 +303,7 @@ func (ctr Counter) filled() bool {
 }
 
 // unmarshal unmarshals a nested counter attribute into a Counter structure.
-func (ctr *Counter) unmarshal(ad *netlink.AttributeDecoder) error {
+func (ctr *Counter) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	// A Counter consists of packet and byte attributes but may have
 	// help attributes as well if nf_conntrack_helper enabled
@@ -337,7 +337,7 @@ type Timestamp struct {
 }
 
 // unmarshal unmarshals a nested timestamp attribute into a conntrack.Timestamp structure.
-func (ts *Timestamp) unmarshal(ad *netlink.AttributeDecoder) error {
+func (ts *Timestamp) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	// A Timestamp will always have at least a start time
 	if ad.Len() == 0 {
@@ -364,7 +364,7 @@ func (ts *Timestamp) unmarshal(ad *netlink.AttributeDecoder) error {
 type Security string
 
 // unmarshal unmarshals a nested security attribute into a conntrack.Security structure.
-func (sec *Security) unmarshal(ad *netlink.AttributeDecoder) error {
+func (sec *Security) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	// A SecurityContext has at least a name
 	if ad.Len() == 0 {
@@ -412,7 +412,7 @@ func (seq SequenceAdjust) filled() bool {
 
 // unmarshal unmarshals a nested sequence adjustment attribute into a
 // conntrack.SequenceAdjust structure.
-func (seq *SequenceAdjust) unmarshal(ad *netlink.AttributeDecoder) error {
+func (seq *SequenceAdjust) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	// A SequenceAdjust message should come with at least 1 child.
 	if ad.Len() == 0 {
@@ -467,7 +467,7 @@ func (sp SynProxy) filled() bool {
 }
 
 // unmarshal unmarshals a SYN proxy attribute into a SynProxy structure.
-func (sp *SynProxy) unmarshal(ad *netlink.AttributeDecoder) error {
+func (sp *SynProxy) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	if ad.Len() == 0 {
 		return errors.Wrap(errNeedSingleChild, opUnSynProxy)

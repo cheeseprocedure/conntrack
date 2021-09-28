@@ -73,7 +73,7 @@ func (n NatMetadata) marshal(at uint16) (netfilter.Attribute, error) {
 	return nfa, nil
 }
 
-func (n *NatMetadata) unmarshal(ad *netlink.AttributeDecoder) error {
+func (n *NatMetadata) Unmarshal(ad *netlink.AttributeDecoder) error {
 	if ad.Len() < 1 {
 		// log.Fatalf("[NatMetadata/unmarshal] ERROR - no child attributes found")
 		n.TraceMsg = errNeedChildren.Error()
@@ -108,7 +108,7 @@ func (n *NatMetadata) unmarshal(ad *netlink.AttributeDecoder) error {
 			n.MaxIPv6 = net.IP(b)
 		case ctaNatProto:
 			var natProto NatMetadataProto
-			ad.Nested(natProto.unmarshal)
+			ad.Nested(natProto.Unmarshal)
 			n.Proto = natProto
 		default:
 			n.TraceMsg = "hit default case for natType"
@@ -149,7 +149,7 @@ func (np NatMetadataProto) marshal() (netfilter.Attribute, error) {
 }
 
 // unmarshal ...
-func (np *NatMetadataProto) unmarshal(ad *netlink.AttributeDecoder) error {
+func (np *NatMetadataProto) Unmarshal(ad *netlink.AttributeDecoder) error {
 	if ad.Len() < 1 {
 		// log.Println("[NatMetadataProto/unmarshal] ERROR - no child attributes found")
 		return errors.Wrap(errNeedChildren, opUnNatProto)

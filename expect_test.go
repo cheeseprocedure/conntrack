@@ -273,7 +273,7 @@ func TestExpectUnmarshal(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			var ex Expect
-			err := ex.unmarshal(mustDecodeAttributes(tt.attrs))
+			err := ex.Unmarshal(mustDecodeAttributes(tt.attrs))
 
 			if tt.err != nil {
 				require.Error(t, err)
@@ -292,7 +292,7 @@ func TestExpectUnmarshal(t *testing.T) {
 	for _, tt := range corpusExpectUnmarshalError {
 		t.Run(tt.name, func(t *testing.T) {
 			var ex Expect
-			assert.EqualError(t, ex.unmarshal(mustDecodeAttributes([]netfilter.Attribute{tt.nfa})), tt.errStr)
+			assert.EqualError(t, ex.Unmarshal(mustDecodeAttributes([]netfilter.Attribute{tt.nfa})), tt.errStr)
 		})
 	}
 }
@@ -431,7 +431,7 @@ func TestExpectNATUnmarshal(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 
 			var enat ExpectNAT
-			err := enat.unmarshal(mustDecodeAttributes(tt.attr))
+			err := enat.Unmarshal(mustDecodeAttributes(tt.attr))
 
 			if tt.err != nil {
 				require.Error(t, err)
@@ -508,6 +508,6 @@ func BenchmarkExpectUnmarshal(b *testing.B) {
 		iad := ad
 
 		var ex Expect
-		_ = ex.unmarshal(iad)
+		_ = ex.Unmarshal(iad)
 	}
 }

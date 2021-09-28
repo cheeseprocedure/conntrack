@@ -9,19 +9,19 @@ import (
 
 // Event holds information about a Conntrack event.
 type Event struct {
-	Type eventType
+	Type EventType
 
 	Flow   *Flow
 	Expect *Expect
 }
 
-// eventType is a custom type that describes the Conntrack event type.
-type eventType uint8
+// EventType is a custom type that describes the Conntrack event type.
+type EventType uint8
 
 // List of all types of Conntrack events. This is an internal representation
 // unrelated to any message types in the kernel source.
 const (
-	EventUnknown eventType = iota
+	EventUnknown EventType = iota
 	EventNew
 	EventUpdate
 	EventDestroy
@@ -30,7 +30,7 @@ const (
 )
 
 // unmarshal unmarshals a Conntrack EventType from a Netfilter header.
-func (et *eventType) unmarshal(h netfilter.Header) error {
+func (et *EventType) Unmarshal(h netfilter.Header) error {
 
 	// Fail when the message is not a conntrack message
 	if h.SubsystemID == netfilter.NFSubsysCTNetlink {
@@ -65,7 +65,7 @@ func (et *eventType) unmarshal(h netfilter.Header) error {
 }
 
 // unmarshal unmarshals a Netlink message into an Event structure.
-func (e *Event) unmarshal(nlmsg netlink.Message) error {
+func (e *Event) Unmarshal(nlmsg netlink.Message) error {
 
 	// Make sure we don't re-use an Event structure
 	if e.Expect != nil || e.Flow != nil {
@@ -81,7 +81,7 @@ func (e *Event) unmarshal(nlmsg netlink.Message) error {
 	}
 
 	// Decode the header to make sure we're dealing with a Conntrack event.
-	err = e.Type.unmarshal(h)
+	err = e.Type.Unmarshal(h)
 	if err != nil {
 		return err
 	}
@@ -89,10 +89,10 @@ func (e *Event) unmarshal(nlmsg netlink.Message) error {
 	// Unmarshal Netfilter attributes into the event's Flow or Expect entry.
 	if h.SubsystemID == netfilter.NFSubsysCTNetlink {
 		e.Flow = new(Flow)
-		err = e.Flow.unmarshal(ad)
+		err = e.Flow.Unmarshal(ad)
 	} else if h.SubsystemID == netfilter.NFSubsysCTNetlinkExp {
 		e.Expect = new(Expect)
-		err = e.Expect.unmarshal(ad)
+		err = e.Expect.Unmarshal(ad)
 	}
 
 	if err != nil {

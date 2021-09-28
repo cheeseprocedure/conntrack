@@ -35,7 +35,7 @@ type ExpectNAT struct {
 }
 
 // unmarshal unmarshals a netfilter.Attribute into an ExpectNAT.
-func (en *ExpectNAT) unmarshal(ad *netlink.AttributeDecoder) error {
+func (en *ExpectNAT) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	if ad.Len() == 0 {
 		return errors.Wrap(errNeedSingleChild, opUnExpectNAT)
@@ -46,7 +46,7 @@ func (en *ExpectNAT) unmarshal(ad *netlink.AttributeDecoder) error {
 		case ctaExpectNATDir:
 			en.Direction = ad.Uint32() == 1
 		case ctaExpectNATTuple:
-			ad.Nested(en.Tuple.unmarshal)
+			ad.Nested(en.Tuple.Unmarshal)
 		default:
 			return errors.Wrap(fmt.Errorf(errAttributeChild, ad.Type()), opUnExpectNAT)
 		}
@@ -76,7 +76,7 @@ func (en ExpectNAT) marshal() (netfilter.Attribute, error) {
 }
 
 // unmarshal unmarshals a list of netfilter.Attributes into an Expect structure.
-func (ex *Expect) unmarshal(ad *netlink.AttributeDecoder) error {
+func (ex *Expect) Unmarshal(ad *netlink.AttributeDecoder) error {
 
 	for ad.Next() {
 		switch at := expectType(ad.Type()); at {
@@ -84,17 +84,17 @@ func (ex *Expect) unmarshal(ad *netlink.AttributeDecoder) error {
 			if !nestedFlag(ad.TypeFlags()) {
 				return errors.Wrap(errNotNested, opUnTup)
 			}
-			ad.Nested(ex.TupleMaster.unmarshal)
+			ad.Nested(ex.TupleMaster.Unmarshal)
 		case ctaExpectTuple:
 			if !nestedFlag(ad.TypeFlags()) {
 				return errors.Wrap(errNotNested, opUnTup)
 			}
-			ad.Nested(ex.Tuple.unmarshal)
+			ad.Nested(ex.Tuple.Unmarshal)
 		case ctaExpectMask:
 			if !nestedFlag(ad.TypeFlags()) {
 				return errors.Wrap(errNotNested, opUnTup)
 			}
-			ad.Nested(ex.Mask.unmarshal)
+			ad.Nested(ex.Mask.Unmarshal)
 		case ctaExpectTimeout:
 			ex.Timeout = ad.Uint32()
 		case ctaExpectID:
@@ -111,7 +111,7 @@ func (ex *Expect) unmarshal(ad *netlink.AttributeDecoder) error {
 			if !nestedFlag(ad.TypeFlags()) {
 				return errors.Wrap(errNotNested, opUnExpectNAT)
 			}
-			ad.Nested(ex.NAT.unmarshal)
+			ad.Nested(ex.NAT.Unmarshal)
 		case ctaExpectFN:
 			ex.Function = ad.String()
 		}
@@ -191,7 +191,7 @@ func unmarshalExpect(nlm netlink.Message) (Expect, error) {
 		return ex, err
 	}
 
-	err = ex.unmarshal(ad)
+	err = ex.Unmarshal(ad)
 	if err != nil {
 		return ex, err
 	}

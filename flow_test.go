@@ -417,7 +417,7 @@ func TestFlowUnmarshal(t *testing.T) {
 	for _, tt := range corpusFlow {
 		t.Run(tt.name, func(t *testing.T) {
 			var f Flow
-			err := f.unmarshal(mustDecodeAttributes(tt.attrs))
+			err := f.Unmarshal(mustDecodeAttributes(tt.attrs))
 
 			if tt.err != nil {
 				require.Error(t, err)
@@ -436,7 +436,7 @@ func TestFlowUnmarshal(t *testing.T) {
 	for _, tt := range corpusFlowUnmarshalError {
 		t.Run(tt.name, func(t *testing.T) {
 			var f Flow
-			assert.EqualError(t, f.unmarshal(mustDecodeAttributes([]netfilter.Attribute{tt.nfa})), tt.errStr)
+			assert.EqualError(t, f.Unmarshal(mustDecodeAttributes([]netfilter.Attribute{tt.nfa})), tt.errStr)
 		})
 	}
 }
@@ -476,13 +476,13 @@ func TestFlowMarshal(t *testing.T) {
 
 func TestUnmarshalFlowsError(t *testing.T) {
 
-	_, err := unmarshalFlows([]netlink.Message{{}})
+	_, err := UnmarshalFlows([]netlink.Message{{}})
 	assert.EqualError(t, err, "unmarshaling netfilter header: expected at least 4 bytes in netlink message payload")
 
 	// Use netfilter.MarshalNetlink to assemble a Netlink message with a single attribute with empty data.
-	// Cause a random error in unmarshalFlows to cover error return.
+	// Cause a random error in UnmarshalFlows to cover error return.
 	nlm, _ := netfilter.MarshalNetlink(netfilter.Header{}, []netfilter.Attribute{{Type: 1}})
-	_, err = unmarshalFlows([]netlink.Message{nlm})
+	_, err = UnmarshalFlows([]netlink.Message{nlm})
 	assert.EqualError(t, err, "Tuple unmarshal: need a Nested attribute to decode this structure")
 
 }
@@ -549,6 +549,6 @@ func BenchmarkFlowUnmarshal(b *testing.B) {
 		iad := ad
 
 		var f Flow
-		_ = f.unmarshal(iad)
+		_ = f.Unmarshal(iad)
 	}
 }

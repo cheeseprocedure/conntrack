@@ -31,7 +31,7 @@ func (s Stats) String() string {
 }
 
 // unmarshal unmarshals a list of netfilter.Attributes into a Stats structure.
-func (s *Stats) unmarshal(attrs []netfilter.Attribute) {
+func (s *Stats) Unmarshal(attrs []netfilter.Attribute) {
 
 	for _, attr := range attrs {
 		switch at := cpuStatsType(attr.Type); at {
@@ -68,7 +68,7 @@ type StatsExpect struct {
 }
 
 // unmarshal unmarshals a list of netfilter.Attributes into a StatsExpect structure.
-func (se *StatsExpect) unmarshal(attrs []netfilter.Attribute) {
+func (se *StatsExpect) Unmarshal(attrs []netfilter.Attribute) {
 
 	for _, attr := range attrs {
 		switch at := expectStatsType(attr.Type); at {
@@ -88,7 +88,7 @@ type StatsGlobal struct {
 }
 
 // unmarshal unmarshals a list of netfilter.Attributes into a Stats structure.
-func (sg *StatsGlobal) unmarshal(attrs []netfilter.Attribute) {
+func (sg *StatsGlobal) Unmarshal(attrs []netfilter.Attribute) {
 
 	for _, attr := range attrs {
 		switch at := globalStatsType(attr.Type); at {
@@ -113,7 +113,7 @@ func unmarshalStats(nlm []netlink.Message) ([]Stats, error) {
 		}
 
 		s := Stats{CPUID: hdr.ResourceID}
-		s.unmarshal(nfa)
+		s.Unmarshal(nfa)
 
 		stats[idx] = s
 	}
@@ -134,7 +134,7 @@ func unmarshalStatsExpect(nlm []netlink.Message) ([]StatsExpect, error) {
 		}
 
 		se := StatsExpect{CPUID: hdr.ResourceID}
-		se.unmarshal(nfa)
+		se.Unmarshal(nfa)
 
 		stats[idx] = se
 	}
@@ -152,7 +152,7 @@ func unmarshalStatsGlobal(nlm netlink.Message) (StatsGlobal, error) {
 		return sg, err
 	}
 
-	sg.unmarshal(nfa)
+	sg.Unmarshal(nfa)
 
 	return sg, nil
 }
